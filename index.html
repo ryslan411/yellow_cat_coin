@@ -97,7 +97,7 @@ display:grid;place-items:center;transition:transform .12s ease-out;touch-action:
     <button class="up" id="u6"><span class="ic" id="u6i">💎</span><span class="t"><b data-t="u6"></b><small id="u6l"></small></span><span class="pr" id="u6p"></span></button>
   </div></div>
 
-  <div class="nav"><button class="on" data-v="v1">🪙 <span data-t="play">Играть</span></button><button data-v="v2">🚀 <span data-t="upg">Улучшения</span></button></div>
+  <div class="nav"><button class="on" data-v="v1">💰 <span data-t="play">Играть</span></button><button data-v="v2">🚀 <span data-t="upg">Улучшения</span></button></div>
 </div>
 <div class="ov" id="ov"><div class="box" id="lgl"></div></div>
 <script>
@@ -180,7 +180,7 @@ function render(){
   $("enB").style.width=(S.e/S.maxE*100)+"%";$("enT").textContent="⚡ "+Math.floor(S.e)+" / "+S.maxE;
   var p={u1:C.u1(),u2:C.u2(),u3:C.u3(),u4:C.u4(),u5:C.u5(),u6:C.u6()};
   $("u1l").textContent=t("u1d",{l:S.tap,n:S.tap+1});$("u2l").textContent=t("u2d",{l:S.auto,n:S.auto+1});$("u3l").textContent=t("u3d",{a:S.maxE,b:S.maxE+250});$("u4l").textContent=t("u4d",{l:S.rg,n:3+S.rg});$("u5l").textContent=t("u5d",{l:S.cr,n:(S.cr+1)*3});$("u6l").textContent=t("u6d",{l:S.mx,n:(S.mx+1)*10});
-  for(var id in p){$(id+"p").textContent="🪙 "+f(p[id]);$(id).classList.toggle("can",S.coins>=p[id]);}
+  for(var id in p){$(id+"p").textContent="💰 "+f(p[id]);$(id).classList.toggle("can",S.coins>=p[id]);}
   var pr=prem();
   [["u2","🤖"],["u6","💎"]].forEach(function(x){var id=x[0];$(id).classList.toggle("lock",!pr);$(id+"i").textContent=pr?x[1]:"🔒";
     if(!pr){$(id+"l").textContent=t("lk");$(id+"p").textContent="🔒";$(id).classList.remove("can")}});

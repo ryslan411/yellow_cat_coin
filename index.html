@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Coin Clicker</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--g1:#ffe27a;--g2:#ffc61a;--g3:#b98400;--bg1:#1b1340;--bg2:#0b0820;--card:rgba(255,255,255,.07);--line:rgba(255,255,255,.12);--mute:#a79fd0;--ok:#4be38a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+html,body{height:100%;margin:0;overflow:hidden}
+body{font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;color:#fff;
+background:radial-gradient(900px 500px at 50% -10%,#3b2a8f 0%,transparent 60%),radial-gradient(600px 400px at 100% 100%,#5a2380 0%,transparent 60%),linear-gradient(180deg,var(--bg1),var(--bg2));
+padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+.app{height:100%;max-width:480px;margin:0 auto;display:flex;flex-direction:column;padding:12px 16px 0}
+.top{display:flex;align-items:center;gap:10px}
+.ava{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--g2),#ff7a3d);display:grid;place-items:center;font-weight:800;color:#2b1d00}
+.who b{display:block;font-size:15px}.who small{color:var(--mute);font-size:12px}
+.badge{margin-left:auto;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:6px 12px;font-size:13px;font-weight:700}
+.bal{text-align:center;margin-top:14px}
+.bal b{font-size:52px;font-weight:900;letter-spacing:-1px;background:linear-gradient(180deg,#fff,var(--g1) 60%,var(--g2));-webkit-background-clip:text;background-clip:text;color:transparent;display:inline-block}
+.bal b::before{content:"🪙 ";font-size:40px;-webkit-text-fill-color:initial}
+.bal small{display:block;color:var(--mute);font-size:13px;margin-top:2px}
+.lg{margin-top:12px}
+.lg .h{display:flex;justify-content:space-between;font-size:12px;color:var(--mute);margin-bottom:5px}
+.bar{height:10px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--g2),#ff7a3d);transition:width .25s}
+.view{flex:1;min-height:0;display:none;flex-direction:column}
+.view.on{display:flex}
+.stage{flex:1;display:grid;place-items:center;position:relative;perspective:700px;min-height:0}
+.glow{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(255,198,26,.35),transparent 65%);filter:blur(6px);animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.12);opacity:.8}}
+#coin{position:relative;width:min(62vw,250px);aspect-ratio:1;border-radius:50%;
+background:radial-gradient(circle at 32% 28%,#fff3b0,var(--g2) 45%,var(--g3) 100%);
+box-shadow:0 14px 0 #8a6200,0 26px 40px rgba(0,0,0,.5),inset 0 -10px 22px rgba(120,70,0,.5),inset 0 8px 14px rgba(255,255,255,.5);
+display:grid;place-items:center;transition:transform .12s ease-out;touch-action:none}
+#coin::before{content:"";position:absolute;inset:11%;border-radius:50%;border:5px solid rgba(138,98,0,.45);box-shadow:inset 0 3px 6px rgba(255,255,255,.4)}
+#coin svg{width:46%;filter:drop-shadow(0 3px 0 rgba(255,240,170,.8))}
+.fl{position:absolute;font-weight:900;font-size:28px;color:var(--g1);text-shadow:0 2px 0 var(--g3),0 0 14px rgba(255,198,26,.7);pointer-events:none;animation:up .9s ease-out forwards;z-index:5}
+@keyframes up{to{transform:translateY(-110px) scale(1.2);opacity:0}}
+.sp{position:absolute;width:8px;height:8px;border-radius:50%;background:var(--g1);pointer-events:none;z-index:4}
+.en{padding:6px 0 12px}
+.en .h{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:6px}
+.en .bar{height:14px}.en .bar i{background:linear-gradient(90deg,#27c46a,var(--ok))}
+.list{flex:1;overflow:auto;padding:14px 0;display:flex;flex-direction:column;gap:10px}
+.up{display:flex;align-items:center;gap:12px;padding:14px;border-radius:18px;background:var(--card);border:1px solid var(--line);color:#fff;font:inherit;text-align:left;width:100%}
+.up .ic{font-size:30px;width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.08);display:grid;place-items:center}
+.up .t{flex:1}.up .t b{display:block;font-size:16px}.up .t small{color:var(--mute);font-size:12px}
+.up .pr{font-weight:900;color:var(--g1);white-space:nowrap}
+.up.can{border-color:var(--g2);box-shadow:0 0 18px rgba(255,198,26,.25)}
+.up:not(.can){opacity:.55}
+.up:active{transform:scale(.98)}
+.nav{display:flex;gap:8px;padding:10px 0 12px}
+.nav button{flex:1;padding:13px;border-radius:16px;border:1px solid var(--line);background:var(--card);color:var(--mute);font:inherit;font-weight:800;font-size:15px}
+.nav button.on{background:linear-gradient(180deg,var(--g2),#e29a00);color:#2b1d00;border-color:transparent}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="ava" id="ava">🙂</div>
+    <div class="who"><b id="nm">Игрок</b><small id="lvT">Бронза</small></div>
+    <div class="badge" id="bd">🤖 +0/сек</div>
+  </div>
+  <div class="bal"><b id="bal">0</b><small id="tapT">+1 за тап</small></div>
+  <div class="lg"><div class="h"><span id="lgA">Бронза</span><span id="lgB">Серебро</span></div><div class="bar"><i id="lgBar"></i></div></div>
+
+  <div class="view on" id="v1">
+    <div class="stage"><div class="glow"></div>
+      <div id="coin"><svg viewBox="0 0 24 24" fill="#8a6200"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z"/></svg></div>
+    </div>
+    <div class="en"><div class="h"><span id="enT">⚡ 500 / 500</span><span>энергия</span></div><div class="bar"><i id="enB"></i></div></div>
+  </div>
+
+  <div class="view" id="v2"><div class="list">
+    <button class="up" id="u1"><span class="ic">👆</span><span class="t"><b>Сильный тап</b><small id="u1l"></small></span><span class="pr" id="u1p"></span></button>
+    <button class="up" id="u2"><span class="ic">🤖</span><span class="t"><b>Автокликер</b><small id="u2l"></small></span><span class="pr" id="u2p"></span></button>
+    <button class="up" id="u3"><span class="ic">🔋</span><span class="t"><b>Больше энергии</b><small id="u3l"></small></span><span class="pr" id="u3p"></span></button>
+  </div></div>
+
+  <div class="nav"><button class="on" data-v="v1">🪙 Играть</button><button data-v="v2">🚀 Улучшения</button></div>
+</div>
+<script>
+(function(){
+var tg=window.Telegram&&window.Telegram.WebApp,KEY="coinclicker_v2";
+if(tg){try{tg.ready();tg.expand();tg.setHeaderColor("#1b1340");tg.setBackgroundColor("#0b0820");tg.disableVerticalSwipes&&tg.disableVerticalSwipes();}catch(e){}
+  var u=tg.initDataUnsafe&&tg.initDataUnsafe.user;if(u){document.getElementById("nm").textContent=u.first_name||"Игрок";document.getElementById("ava").textContent=(u.first_name||"🙂")[0].toUpperCase();}}
+var S={coins:0,total:0,tap:1,auto:0,maxE:500,e:500,t:Date.now()};
+try{var d=JSON.parse(localStorage.getItem(KEY)||"null");if(d){for(var k in S)if(typeof d[k]==="number")S[k]=d[k];
+  var dt=Math.min((Date.now()-S.t)/1000,28800);S.coins+=S.auto*dt*.5;S.total+=S.auto*dt*.5;S.e=Math.min(S.maxE,S.e+dt*2);}}catch(e){}
+var $=function(i){return document.getElementById(i)};
+var LG=[["Бронза",0],["Серебро",1e3],["Золото",1e4],["Платина",1e5],["Алмаз",1e6],["Легенда",1e7]];
+var C={u1:function(){return Math.floor(50*Math.pow(1.6,S.tap-1))},u2:function(){return Math.floor(200*Math.pow(1.7,S.auto))},u3:function(){return Math.floor(150*Math.pow(1.5,(S.maxE-500)/250))}};
+function f(n){n=Math.floor(n);if(n>=1e9)return(n/1e9).toFixed(2)+"B";if(n>=1e6)return(n/1e6).toFixed(2)+"M";if(n>=1e4)return(n/1e3).toFixed(1)+"K";return String(n).replace(/\B(?=(\d{3})+$)/g," ")}
+function save(){S.t=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function hap(t){try{tg&&tg.HapticFeedback&&tg.HapticFeedback.impactOccurred(t||"light")}catch(e){}}
+function render(){
+  $("bal").textContent=f(S.coins);$("tapT").textContent="+"+S.tap+" за тап";$("bd").textContent="🤖 +"+S.auto+"/сек";
+  var i=0;for(var j=0;j<LG.length;j++)if(S.total>=LG[j][1])i=j;
+  var a=LG[i],b=LG[i+1];$("lvT").textContent=a[0];$("lgA").textContent=a[0];$("lgB").textContent=b?b[0]:"Макс";
+  $("lgBar").style.width=(b?Math.min(100,(S.total-a[1])/(b[1]-a[1])*100):100)+"%";
+  $("enB").style.width=(S.e/S.maxE*100)+"%";$("enT").textContent="⚡ "+Math.floor(S.e)+" / "+S.maxE;
+  var p={u1:C.u1(),u2:C.u2(),u3:C.u3()};
+  $("u1l").textContent="Ур. "+S.tap+" → +"+(S.tap+1)+" за тап";$("u2l").textContent="Ур. "+S.auto+" → +"+(S.auto+1)+" в секунду";$("u3l").textContent="Лимит "+S.maxE+" → "+(S.maxE+250);
+  for(var id in p){$(id+"p").textContent="🪙 "+f(p[id]);$(id).classList.toggle("can",S.coins>=p[id]);}
+}
+function buy(id,fn){$(id).addEventListener("click",function(){var c=C[id]();if(S.coins<c){hap("rigid");return}S.coins-=c;fn();hap("medium");save();render()})}
+buy("u1",function(){S.tap++});buy("u2",function(){S.auto++});buy("u3",function(){S.maxE+=250;S.e=S.maxE});
+var coin=$("coin"),stage=document.querySelector(".stage");
+function tap(e){
+  if(S.e<S.tap){hap("rigid");return}
+  S.e-=S.tap;S.coins+=S.tap;S.total+=S.tap;hap();
+  var r=coin.getBoundingClientRect(),dx=(e.clientX-(r.left+r.width/2))/(r.width/2),dy=(e.clientY-(r.top+r.height/2))/(r.height/2);
+  coin.style.transform="rotateX("+(-dy*18)+"deg) rotateY("+(dx*18)+"deg) scale(.95)";
+  setTimeout(function(){coin.style.transform=""},110);
+  var sr=stage.getBoundingClientRect(),x=e.clientX-sr.left,y=e.clientY-sr.top;
+  var p=document.createElement("div");p.className="fl";p.textContent="+"+S.tap;p.style.left=(x-14)+"px";p.style.top=(y-30)+"px";stage.appendChild(p);setTimeout(function(){p.remove()},900);
+  for(var i=0;i<5;i++){var s=document.createElement("div");s.className="sp";s.style.left=x+"px";s.style.top=y+"px";stage.appendChild(s);
+    var a=Math.random()*6.28,dist=40+Math.random()*50;
+    s.animate([{transform:"translate(0,0)",opacity:1},{transform:"translate("+Math.cos(a)*dist+"px,"+Math.sin(a)*dist+"px) scale(.2)",opacity:0}],{duration:500,easing:"ease-out"});
+    (function(el){setTimeout(function(){el.remove()},500)})(s);}
+  render();
+}
+coin.addEventListener("pointerdown",function(e){e.preventDefault();tap(e)});
+document.querySelectorAll(".nav button").forEach(function(b){b.addEventListener("click",function(){
+  document.querySelectorAll(".nav button").forEach(function(x){x.classList.toggle("on",x===b)});
+  document.querySelectorAll(".view").forEach(function(v){v.classList.toggle("on",v.id===b.dataset.v)});hap();})});
+setInterval(function(){S.coins+=S.auto;S.total+=S.auto;S.e=Math.min(S.maxE,S.e+2);render()},1000);
+setInterval(save,5000);document.addEventListener("visibilitychange",save);
+render();
+})();
+</script>
+</body>
+</html>

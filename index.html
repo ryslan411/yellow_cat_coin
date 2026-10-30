@@ -241,17 +241,20 @@ function saveBan(){try{localStorage.setItem("cc_ban",JSON.stringify(BAN))}catch(
 function fmtT(sec){var m=sec>=120,v=m?Math.ceil(sec/60):Math.ceil(sec);try{return new Intl.NumberFormat(locale(),{style:"unit",unit:m?"minute":"second",unitDisplay:"short"}).format(v)}catch(e){return v+(m?" min":" s")}}
 function warn(sec){var el=$("bn");el.textContent=t("bn",{t:fmtT(sec)});el.style.display="block";clearTimeout(bnT);bnT=setTimeout(function(){el.style.display="none"},3200)}
 /* Защита от автокликеров: только настоящие касания, лимит скорости, детектор «слишком ровных» тапов */
+function doBan(now){BAN.strikes++;var sec=[60,300,1800,7200][Math.min(BAN.strikes-1,3)];BAN.until=now+sec*1000;saveBan();TS=[];warn(sec);hap("heavy");sfx("no");return false}
+function ivStats(a){var sum=0,d=[],i;for(i=1;i<a.length;i++){var v=a[i].t-a[i-1].t;d.push(v);sum+=v}var m=sum/d.length;return{m:m,sd:Math.sqrt(d.reduce(function(q,v){return q+(v-m)*(v-m)},0)/d.length)}}
 function guard(e){
   if(e&&e.isTrusted===false)return false;
   var now=Date.now();
   if(BAN.until&&now>BAN.until+864e5){BAN.strikes=0;BAN.until=0;saveBan()}
   if(now<BAN.until){warn((BAN.until-now)/1000);hap("rigid");return false}
-  var n1=0;for(var i=TS.length-1;i>=0&&now-TS[i]<1000;i--)n1++;
-  if(n1>=14)return false;
-  TS.push(now);if(TS.length>30)TS.shift();
-  if(TS.length===30){var sum=0,d=[];for(i=1;i<30;i++){var v=TS[i]-TS[i-1];d.push(v);sum+=v}
-    var mean=sum/29,sd=Math.sqrt(d.reduce(function(a,v){return a+(v-mean)*(v-mean)},0)/29);
-    if(mean<300&&sd<6){BAN.strikes++;var sec=[60,300,1800,7200][Math.min(BAN.strikes-1,3)];BAN.until=now+sec*1000;saveBan();TS=[];warn(sec);hap("heavy");sfx("no");return false}}
+  TS.push({t:now,x:e.clientX,y:e.clientY});if(TS.length>40)TS.shift();   /* учитываем КАЖДОЕ касание, даже отклонённое */
+  var n1=0,i;for(i=TS.length-1;i>=0&&now-TS[i].t<1000;i--)n1++;
+  if(n1>=22)return doBan(now);                                          /* человек так быстро не тапает */
+  if(TS.length>=30){var st=ivStats(TS.slice(-30));if(st.m<300&&st.sd<6)return doBan(now)}   /* слишком ровный ритм */
+  if(TS.length>=25){var L=TS.slice(-25),xs=L.map(function(q){return q.x}),ys=L.map(function(q){return q.y}),s2=ivStats(L);
+    if(Math.max.apply(0,xs)-Math.min.apply(0,xs)<=3&&Math.max.apply(0,ys)-Math.min.apply(0,ys)<=3&&s2.m<300&&s2.sd<20)return doBan(now)}   /* одна и та же точка + почти ровный ритм */
+  if(n1>=14)return false;                                                /* лимит скорости */
   return true}
 function tap(e){if(!guard(e))return;
   if(S.e<S.tap){hap("rigid");sfx("no");return}
